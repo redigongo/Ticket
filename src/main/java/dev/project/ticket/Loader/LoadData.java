@@ -1,7 +1,9 @@
 package dev.project.ticket.Loader;
 
+import dev.project.ticket.models.Official;
 import dev.project.ticket.models.Role;
 import dev.project.ticket.models.User;
+import dev.project.ticket.repositories.OfficialRepository;
 import dev.project.ticket.repositories.RoleRepository;
 import dev.project.ticket.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,11 +17,24 @@ public class LoadData implements CommandLineRunner {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
+    private final OfficialRepository officialRepository;
 
 
     @Override
-    public void run(String... args){
+    public void run(String... args) {
         saveUsers();
+        saveOfficial();
+    }
+
+    private void saveOfficial() {
+        if (officialRepository.count() == 0){
+
+            Official official = new Official();
+            official.setName("Oficeri 1");
+            official.setOfficialCode("AL115");
+            official.setBirthDate("01/01/1990");
+            officialRepository.save(official);
+        }
     }
 
     private void saveUsers() {
@@ -42,7 +57,6 @@ public class LoadData implements CommandLineRunner {
             userAdmin.setAccountNonLocked(true);
             userAdmin.setCredentialsNonExpired(true);
             userRepository.save(userAdmin);
-
 
         }
     }
