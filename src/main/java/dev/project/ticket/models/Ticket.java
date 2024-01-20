@@ -20,9 +20,11 @@ public class Ticket extends BaseEntity{
 
     @Column(unique = true)
     private String serialNumber;
-
     @Column(nullable = false)
     private double amount;
+    private double surcharge;
+    private double total;
+    private String paymentInstitution;
     @Column(nullable = false)
     private String ticketPlace;
     @Column(nullable = false)
@@ -33,6 +35,8 @@ public class Ticket extends BaseEntity{
     private ZonedDateTime ticketDate;
 
     private ZonedDateTime createdDate;
+
+    private ZonedDateTime paidDate;
     @Column(nullable = false)
     private String vehicleType;
 

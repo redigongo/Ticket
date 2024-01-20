@@ -26,6 +26,7 @@ public class TicketToTicketDTO implements Converter<Ticket, TicketDTO> {
             ticketDTO.setTicketPlace(source.getTicketPlace());
             ticketDTO.setPlateId(source.getPlateId());
             ticketDTO.setBreaker(source.getBreaker());
+            ticketDTO.setPaid(source.isPaid());
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 

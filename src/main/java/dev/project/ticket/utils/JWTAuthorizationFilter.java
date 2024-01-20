@@ -26,7 +26,10 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().matches("/TICKET/auth/login")
+        if (request.getServletPath().matches("/TICKET/auth/login") ||
+                request.getServletPath().matches("/TICKET/swagger") ||
+                request.getServletPath().matches("/TICKET/swagger-ui/(.*)") ||
+                request.getServletPath().matches("/TICKET/apidoc/(.*)")
         ) {
             filterChain.doFilter(request, response);
         } else {

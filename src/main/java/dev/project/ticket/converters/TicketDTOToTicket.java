@@ -15,6 +15,8 @@ public class TicketDTOToTicket implements Converter<TicketDTO,Ticket> {
     public Ticket convert(TicketDTO source) {
         if (source!=null){
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+
             Ticket ticket = new Ticket();
             ticket.setId(source.getId());
             ticket.setSerialNumber(source.getSerialNumber());
@@ -22,8 +24,8 @@ public class TicketDTOToTicket implements Converter<TicketDTO,Ticket> {
             ticket.setTicketPlace(source.getTicketPlace());
             ticket.setPlateId(source.getPlateId());
             ticket.setBreaker(source.getBreaker());
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+            ticket.setPaid(source.isPaid());
+            ticket.setPaymentInstitution(source.getPaymentInstitution());
 
             ZonedDateTime tickedDate = ZonedDateTime.parse(source.getTicketDate(),formatter);
             ZonedDateTime createdDate = ZonedDateTime.now();

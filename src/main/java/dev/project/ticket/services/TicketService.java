@@ -1,5 +1,6 @@
 package dev.project.ticket.services;
 
+import dev.project.ticket.DTO.PaymentDTO;
 import dev.project.ticket.DTO.TicketDTO;
 import dev.project.ticket.converters.TicketDTOToTicket;
 import dev.project.ticket.converters.TicketToTicketDTO;
@@ -27,33 +28,44 @@ public class TicketService {
         return ticketRepository.findAll()
                 .stream()
                 .map(toTicketDTO::convert)
-                .peek(ticketDTO -> ticketDTO.setAmount(checkAmount(ticketDTO)))
+                .peek(ticketDTO -> ticketDTO.calculateTotal())
                 .collect(Collectors.toList());
     }
 
-    public String saveUpdate(TicketDTO ticketDTO){
+    public String saveUpdate(TicketDTO ticketDTO) {
         Ticket ticket = ticketRepository.save(toTicket.convert(ticketDTO));
 
-        if (ticket.getId()!=null && ticketDTO.getId()!=null){
+        if (ticket.getId() != null && ticketDTO.getId() != null) {
             return "Fleta e gjobes u ndryshua me sukses";
         }
-        if (ticket.getId()!=null){
+        if (ticket.getId() != null) {
             return "Fleta e gjobes u ruajt me sukses";
         }
         throw new RuntimeException();
     }
 
-    public String payTicket(TicketDTO ticketDTO){
-        if (ticketDTO.getAmount()!= checkAmount(ticketDTO)){
-            return "Vlera e gjobes nuk eshte e sakte.\nVlera e gjobes me numer serial: " + ticketDTO.getSerialNumber() + " eshte: " + checkAmount(ticketDTO);
-        }
+    public String payTicket(PaymentDTO paymentDTO) {
 
-        Ticket ticket = toTicket.convert(ticketDTO);
-        ticket.setPaid(true);
+            double total = paymentDTO.getAmount() + paymentDTO.getSurcharge();
 
-        ticketRepository.save(ticket);
+            TicketDTO ticketDTO = findBySerialNumber(paymentDTO.getSerialNumber());
 
-        return "Pagesa u krye me sukses";
+            if (ticketDTO.isPaid()) {
+                return "Gjoba me numer serial: " + paymentDTO.getSerialNumber() + " eshte e paguar!";
+            }
+
+            if (total != ticketDTO.getTotal()) {
+                return "Vlera e gjobes nuk eshte e sakte.\nVlera e gjobes me numer serial: " + paymentDTO.getSerialNumber() + " eshte: " + ticketDTO.getAmount();
+            }
+
+            Ticket ticket = toTicket.convert(ticketDTO);
+            ticket.setPaid(true);
+            ticket.setPaidDate(ZonedDateTime.now());
+            ticket.setPaymentInstitution(paymentDTO.getPaymentInstitution());
+
+            ticketRepository.save(ticket);
+
+            return "Pagesa u krye me sukses";
 
     }
 
@@ -62,38 +74,15 @@ public class TicketService {
         Ticket ticket = ticketRepository.findBySerialNumber(serialNumber).orElseThrow(() ->
                 new NotFoundException("Gjoba me numer serial: " + serialNumber + " nuk u gjet!"));
 
-        if (ticket==null){
+        if (ticket == null) {
             return null;
         }
 
         TicketDTO ticketDTO = toTicketDTO.convert(ticket);
-        ticketDTO.setAmount(checkAmount(ticketDTO));
+        ticketDTO.calculateTotal();
 
         return ticketDTO;
     }
 
-
-    private double checkAmount(TicketDTO ticket) {
-        double amount = ticket.getAmount();
-
-        ZonedDateTime dateToday = ZonedDateTime.now();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-        ZonedDateTime tickedDate = ZonedDateTime.parse(ticket.getTicketDate(),formatter);
-
-        int numberOfDaysBetween = dateToday.getDayOfYear() - tickedDate.getDayOfYear();
-
-        if (numberOfDaysBetween <= 15) {
-            return amount * 0.5;
-        }
-
-        int exceededDays = numberOfDaysBetween - 15;
-        double penalty = ticket.getAmount() * 0.02;
-
-        for (int i = 1; i <= exceededDays; i++) {
-            amount += amount + penalty;
-        }
-        return amount;
-    }
 
 }
