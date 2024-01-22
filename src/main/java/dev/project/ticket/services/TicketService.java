@@ -55,7 +55,7 @@ public class TicketService {
             }
 
             if (total != ticketDTO.getTotal()) {
-                return "Vlera e gjobes nuk eshte e sakte.\nVlera e gjobes me numer serial: " + paymentDTO.getSerialNumber() + " eshte: " + ticketDTO.getAmount();
+                return "Vlera e gjobes nuk eshte e sakte.\nVlera e gjobes me numer serial: " + paymentDTO.getSerialNumber() + " eshte: " + ticketDTO.getTotal() + " dhe kamata: " + ticketDTO.getSurcharge();
             }
 
             Ticket ticket = toTicket.convert(ticketDTO);
